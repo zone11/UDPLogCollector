@@ -22,6 +22,10 @@ class UDPLogParser {
       14: 'SwitchConfiguration',
       15: 'Configure'
     };
+    
+    this.requiredFields = new Set(['call', 'qso_date', 'time_on', 'time_off', 'band', 'freq', 'mode', 'rst_sent', 'rst_rcvd', 'tx_pwr', 'comment']);
+    this.optionalFields = new Set(['sota_ref', 'pota_ref', 'wwff_ref']);
+    this.allFields = new Set([...this.requiredFields, ...this.optionalFields]);
   }
 
   readQString(buffer, offset) {
@@ -45,53 +49,63 @@ class UDPLogParser {
 
   parseADIF(adifString) {
     const fields = {};
-    const requiredFields = ['call', 'qso_date', 'time_on', 'time_off', 'band', 'freq', 'mode', 'rst_sent', 'rst_rcvd', 'tx_pwr', 'comment'];
-    const optionalFields = ['sota_ref', 'pota_ref', 'wwff_ref'];
     
-    // Extrahiere alle ADIF-Felder
-    const fieldRegex = /<(\w+):(\d+)(?::(\w))?>(.*?)(?=<|$)/gs;
-    let match;
+    const fieldRegex = /<(\w+):(\d+)(?::(\w))?>/g;
+    const matches = adifString.matchAll(fieldRegex);
     
-    while ((match = fieldRegex.exec(adifString)) !== null) {
+    for (const match of matches) {
       const fieldName = match[1].toLowerCase();
-      const fieldLength = parseInt(match[2]);
-      const startPos = match.index + match[0].length - match[4].length;
-      const value = adifString.substr(startPos, fieldLength);
       
-      // Nur benötigte und optionale Felder verarbeiten
-      if (!requiredFields.includes(fieldName) && !optionalFields.includes(fieldName)) {
+      if (!this.allFields.has(fieldName)) {
         continue;
       }
       
-      // Konvertiere Felder
-      switch(fieldName) {
-        case 'qso_date':
-          if (value.length === 8) {
-            fields.qso_date = `${value.substr(0,4)}-${value.substr(4,2)}-${value.substr(6,2)}`;
-          } else {
-            fields.qso_date = value;
-          }
-          break;
-        case 'time_on':
-        case 'time_off':
-          if (value.length === 6) {
-            fields[fieldName] = `${value.substr(0,2)}:${value.substr(2,2)}:${value.substr(4,2)}`;
-          } else {
+      const fieldLength = parseInt(match[2], 10);
+      const startPos = match.index + match[0].length;
+      
+      // Validierung: Prüfe ob genug Daten vorhanden
+      if (startPos + fieldLength > adifString.length) {
+        continue;
+      }
+      
+      const value = adifString.slice(startPos, startPos + fieldLength);
+      
+      try {
+        switch(fieldName) {
+          case 'qso_date':
+            if (value.length === 8) {
+              fields.qso_date = `${value.slice(0,4)}-${value.slice(4,6)}-${value.slice(6,8)}`;
+            } else {
+              fields.qso_date = value;
+            }
+            break;
+          case 'time_on':
+          case 'time_off':
+            if (value.length === 6) {
+              fields[fieldName] = `${value.slice(0,2)}:${value.slice(2,4)}:${value.slice(4,6)}`;
+            } else {
+              fields[fieldName] = value;
+            }
+            break;
+          case 'freq':
+            const freq = parseFloat(value);
+            fields[fieldName] = isNaN(freq) ? null : freq;
+            break;
+          case 'tx_pwr':
+            const pwr = parseInt(value, 10);
+            fields[fieldName] = isNaN(pwr) ? null : pwr;
+            break;
+          case 'rst_sent':
+          case 'rst_rcvd':
+            const rst = parseInt(value, 10);
+            fields[fieldName] = isNaN(rst) ? null : rst;
+            break;
+          default:
             fields[fieldName] = value;
-          }
-          break;
-        case 'freq':
-          fields[fieldName] = parseFloat(value);
-          break;
-        case 'tx_pwr':
-          fields[fieldName] = parseInt(value);
-          break;
-        case 'rst_sent':
-        case 'rst_rcvd':
-          fields[fieldName] = parseInt(value);
-          break;
-        default:
-          fields[fieldName] = value;
+        }
+      } catch (error) {
+        // Bei Parsing-Fehler Feld überspringen
+        continue;
       }
     }
     
@@ -102,11 +116,11 @@ class UDPLogParser {
       time_on: fields.time_on || null,
       time_off: fields.time_off || null,
       band: fields.band || null,
-      freq: fields.freq || null,
+      freq: fields.freq !== undefined ? fields.freq : null,
       mode: fields.mode || null,
-      rst_sent: fields.rst_sent || null,
-      rst_rcvd: fields.rst_rcvd || null,
-      tx_pwr: fields.tx_pwr || null,
+      rst_sent: fields.rst_sent !== undefined ? fields.rst_sent : null,
+      rst_rcvd: fields.rst_rcvd !== undefined ? fields.rst_rcvd : null,
+      tx_pwr: fields.tx_pwr !== undefined ? fields.tx_pwr : null,
       comment: fields.comment || null
     };
     
@@ -138,21 +152,19 @@ class UDPLogParser {
 
   isN1MMPacket(buffer) {
     try {
-      const text = buffer.toString('utf8');
+      // Nur ersten Teil konvertieren (max 100 Bytes)
+      const checkLength = Math.min(100, buffer.length);
+      const text = buffer.toString('utf8', 0, checkLength);
       
       // Prüfe auf exakte N1MM Command-Struktur
-      const commandMatch = text.match(/^.{0,20}<command:3>Log/i);
-      if (!commandMatch) {
+      if (!text.includes('<command:3>Log')) {
         return false;
       }
       
-      // Prüfe auf Parameters-Tag mit numerischer Länge
-      const parametersMatch = text.match(/<parameters:\d+>/i);
-      if (!parametersMatch) {
-        return false;
-      }
+      // Prüfe auf Parameters-Tag (könnte außerhalb der ersten 100 Bytes sein)
+      const fullText = checkLength < buffer.length ? buffer.toString('utf8') : text;
+      return /<parameters:\d+>/i.test(fullText);
       
-      return true;
     } catch (error) {
       return false;
     }
