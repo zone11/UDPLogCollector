@@ -18,7 +18,7 @@ for (let i = 0; i < args.length; i++) {
 Options:
   --port <number>          UDP port to listen on (default: 2237)
   --adif <path>            Path to ADIF log file (optional)
-  --mqtt-broker <url>      MQTT broker URL (e.g., broker.example.com:1883)
+  --mqtt-broker <url>      MQTT broker Host:Port (e.g., broker.example.com:1883)
   --mqtt-topic <topic>     MQTT topic (default: qso/log)
   --mqtt-username <user>   MQTT username (optional)
   --mqtt-password <pass>   MQTT password (optional)

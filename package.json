@@ -1,7 +1,7 @@
 {
-  "name": "udplogparser",
-  "version": "1.0.0",
-  "description": "UDP Log Parser for WSJT-X and N1MM Logger+ with MQTT and ADIF support",
+  "name": "udplogcollector",
+  "version": "0.0.2",
+  "description": "UDP Log collector for QSO in WSJT-X and N1MM Logger+ format with MQTT and ADIF support",
   "main": "index.js",
   "bin": {
     "udplogparser": "./index.js"
@@ -20,7 +20,7 @@
     "qso",
     "logging"
   ],
-  "author": "",
+  "author": "Christian Egger, HB9HJQ",
   "license": "MIT",
   "dependencies": {
     "mqtt": "^5.3.0"
