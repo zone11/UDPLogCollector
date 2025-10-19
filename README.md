@@ -1,5 +1,5 @@
-# WLBridge4UDP (WORK IN PROGRESS)
-Simple UDP (WSJT-X, N1MM) Bridge
+# UDPLogCollector (WORK IN PROGRESS)
+Simple receiver for UDP QSO Data (WSJT-X, N1MM)
 
 For now, its a simple solution to receive UDP QSO in the formats N1MM/Log4OM and WSJT-X and store it in a ADIF file.
 
