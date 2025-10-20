@@ -1,0 +1,31 @@
+{
+  "name": "udplogcollector",
+  "version": "0.0.2",
+  "description": "UDP Log collector for QSO in WSJT-X and N1MM Logger+ format with MQTT and ADIF support",
+  "main": "index.js",
+  "bin": {
+    "udplogparser": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ham-radio",
+    "wsjt-x",
+    "n1mm",
+    "adif",
+    "mqtt",
+    "amateur-radio",
+    "qso",
+    "logging"
+  ],
+  "author": "Christian Egger, HB9HJQ",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
