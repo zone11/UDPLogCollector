@@ -34,6 +34,15 @@ node index.js \
   --mqtt-topic qso/log
 ```
 
+### With Wavelog
+
+```bash
+node index.js \
+  --wavelog-url https://log.example.com \
+  --wavelog-token YOUR_API_KEY \
+  --wavelog-stationid 1
+```
+
 ### Full Configuration
 
 ```bash
@@ -41,7 +50,10 @@ node index.js \
   --port 2237 \
   --adif ./logs/qso.adi \
   --mqtt-broker mqtt://localhost:1883 \
-  --mqtt-topic qso/log
+  --mqtt-topic qso/log \
+  --wavelog-url https://log.example.com \
+  --wavelog-token YOUR_API_KEY \
+  --wavelog-stationid 1
 ```
 
 ## Options
@@ -54,9 +66,14 @@ node index.js \
 | `--mqtt-topic` | - | MQTT topic | qso/log |
 | `--mqtt-username` | - | MQTT username | none |
 | `--mqtt-password` | - | MQTT password | none |
+| `--wavelog-url` | - | Wavelog instance URL | none |
+| `--wavelog-token` | - | Wavelog API token | none |
+| `--wavelog-stationid` | - | Wavelog station profile ID | none |
 | `--help` | `-h` | Show help message | - |
 
 **Note:** The MQTT broker URL must include the protocol (`mqtt://` for unencrypted or `mqtts://` for encrypted connections). If no protocol is specified, `mqtt://` is assumed for backwards compatibility.
+
+**Note:** For Wavelog integration, all three parameters (URL, token, and station ID) are required. The station profile ID can be found in the URL when editing a station profile in Wavelog.
 
 ## Project Structure
 
@@ -67,7 +84,8 @@ UDPLogParser/
 │   ├── UDPServer.js      # UDP server & message routing
 │   ├── ProtocolParser.js # WSJT-X & N1MM protocol parsing
 │   ├── ADIFHandler.js    # ADIF parsing & file I/O
-│   └── MQTTClient.js     # MQTT connection & publishing
+│   ├── MQTTClient.js     # MQTT connection & publishing
+│   └── WavelogClient.js  # Wavelog API integration
 ├── package.json
 └── README.md
 ```
@@ -135,7 +153,7 @@ Manages ADIF parsing, conversion, and file operations.
 
 **Methods:**
 - `parse(adifString)` - Converts ADIF string to JSON
-- `toADIF(qsoData)` - Converts JSON to ADIF format
+- `toADIF(qsoData, format)` - Converts JSON to ADIF format ('file' or 'api')
 - `initializeFile()` - Creates ADIF file with header
 - `append(qsoData)` - Appends QSO to file
 
@@ -146,6 +164,13 @@ Handles MQTT connection and publishing.
 - `connect()` - Establishes MQTT connection (protocol auto-detected from URL)
 - `publish(qsoData)` - Publishes QSO to MQTT topic
 - `disconnect()` - Closes MQTT connection
+
+#### `WavelogClient.js`
+Handles Wavelog API integration.
+
+**Methods:**
+- `upload(qsoData)` - Uploads QSO to Wavelog instance (uses ADIFHandler for conversion)
+- `validateConfig()` - Validates configuration parameters
 
 #### `UDPServer.js`
 Orchestrates all components and handles UDP communication.
