@@ -18,19 +18,18 @@ for (let i = 0; i < args.length; i++) {
 Options:
   --port <number>          UDP port to listen on (default: 2237)
   --adif <path>            Path to ADIF log file (optional)
-  --mqtt-broker <url>      MQTT broker Host:Port (e.g., broker.example.com:1883)
+  --mqtt-broker <url>      MQTT broker URL (mqtt://host:port or mqtts://host:port)
   --mqtt-topic <topic>     MQTT topic (default: qso/log)
   --mqtt-username <user>   MQTT username (optional)
   --mqtt-password <pass>   MQTT password (optional)
-  --mqtt-secure            Use encrypted MQTT connection (mqtts://)
   -h, --help               Show this help message
   
 Examples:
   node index.js
   node index.js --port 2237 --adif ./logs/qso.adi
-  node index.js --mqtt-broker broker.hivemq.com:1883 --mqtt-topic ham/qso
-  node index.js --mqtt-broker broker.example.com:8883 --mqtt-secure --mqtt-username user --mqtt-password pass
-  node index.js --port 2237 --adif ./logs/qso.adi --mqtt-broker localhost:1883 --mqtt-topic qso/log
+  node index.js --mqtt-broker mqtt://broker.hivemq.com:1883 --mqtt-topic ham/qso
+  node index.js --mqtt-broker mqtts://broker.example.com:8883 --mqtt-username user --mqtt-password pass
+  node index.js --port 2237 --adif ./logs/qso.adi --mqtt-broker mqtt://localhost:1883 --mqtt-topic qso/log
 `);
     process.exit(0);
   }
@@ -103,11 +102,6 @@ Examples:
     }
     mqttConfig.password = passwordValue;
     i++;
-    continue;
-  }
-  
-  if (arg === '--mqtt-secure') {
-    mqttConfig.secure = true;
     continue;
   }
   

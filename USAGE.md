@@ -1,4 +1,3 @@
-
 ## Installation
 
 ```bash
@@ -22,15 +21,14 @@ node index.js --port 2237 --adif ./logs/qso.adi
 ### With MQTT (Unencrypted)
 
 ```bash
-node index.js --mqtt-broker broker.hivemq.com:1883 --mqtt-topic ham/qso
+node index.js --mqtt-broker mqtt://broker.hivemq.com:1883 --mqtt-topic ham/qso
 ```
 
 ### With MQTT (Encrypted + Auth)
 
 ```bash
 node index.js \
-  --mqtt-broker broker.example.com:8883 \
-  --mqtt-secure \
+  --mqtt-broker mqtts://broker.example.com:8883 \
   --mqtt-username myuser \
   --mqtt-password mypass \
   --mqtt-topic qso/log
@@ -42,7 +40,7 @@ node index.js \
 node index.js \
   --port 2237 \
   --adif ./logs/qso.adi \
-  --mqtt-broker localhost:1883 \
+  --mqtt-broker mqtt://localhost:1883 \
   --mqtt-topic qso/log
 ```
 
@@ -52,12 +50,13 @@ node index.js \
 |--------|-------|-------------|---------|
 | `--port` | `-p` | UDP port to listen on | 2237 |
 | `--adif` | `-a` | Path to ADIF log file | none |
-| `--mqtt-broker` | - | MQTT broker URL (host:port) | none |
+| `--mqtt-broker` | - | MQTT broker URL (mqtt://host:port or mqtts://host:port) | none |
 | `--mqtt-topic` | - | MQTT topic | qso/log |
 | `--mqtt-username` | - | MQTT username | none |
 | `--mqtt-password` | - | MQTT password | none |
-| `--mqtt-secure` | - | Use encrypted connection (mqtts) | false |
 | `--help` | `-h` | Show help message | - |
+
+**Note:** The MQTT broker URL must include the protocol (`mqtt://` for unencrypted or `mqtts://` for encrypted connections). If no protocol is specified, `mqtt://` is assumed for backwards compatibility.
 
 ## Project Structure
 
@@ -117,6 +116,7 @@ When MQTT is configured, each QSO is published as JSON to the specified topic wi
 - **QoS**: 1 (at least once delivery)
 - **Retain**: false
 - **Payload**: Complete QSO data in JSON format
+- **Protocol**: Automatically detected from broker URL (`mqtt://` or `mqtts://`)
 
 ## Development
 
@@ -143,7 +143,7 @@ Manages ADIF parsing, conversion, and file operations.
 Handles MQTT connection and publishing.
 
 **Methods:**
-- `connect()` - Establishes MQTT connection
+- `connect()` - Establishes MQTT connection (protocol auto-detected from URL)
 - `publish(qsoData)` - Publishes QSO to MQTT topic
 - `disconnect()` - Closes MQTT connection
 
