@@ -1,9 +1,3 @@
-## Installation
-
-```bash
-npm install
-```
-
 ## Usage
 
 ### Basic Usage
