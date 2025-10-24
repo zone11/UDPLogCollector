@@ -34,6 +34,15 @@ node index.js \
   --mqtt-topic qso/log
 ```
 
+### With Wavelog
+
+```bash
+node index.js \
+  --wavelog-url https://log.example.com \
+  --wavelog-token YOUR_API_KEY \
+  --wavelog-stationid 1
+```
+
 ### Full Configuration
 
 ```bash
@@ -41,7 +50,10 @@ node index.js \
   --port 2237 \
   --adif ./logs/qso.adi \
   --mqtt-broker mqtt://localhost:1883 \
-  --mqtt-topic qso/log
+  --mqtt-topic qso/log \
+  --wavelog-url https://log.example.com \
+  --wavelog-token YOUR_API_KEY \
+  --wavelog-stationid 1
 ```
 
 ## Options
@@ -54,9 +66,14 @@ node index.js \
 | `--mqtt-topic` | - | MQTT topic | qso/log |
 | `--mqtt-username` | - | MQTT username | none |
 | `--mqtt-password` | - | MQTT password | none |
+| `--wavelog-url` | - | Wavelog instance URL | none |
+| `--wavelog-token` | - | Wavelog API token | none |
+| `--wavelog-stationid` | - | Wavelog station profile ID | none |
 | `--help` | `-h` | Show help message | - |
 
 **Note:** The MQTT broker URL must include the protocol (`mqtt://` for unencrypted or `mqtts://` for encrypted connections). If no protocol is specified, `mqtt://` is assumed for backwards compatibility.
+
+**Note:** For Wavelog integration, all three parameters (URL, token, and station ID) are required. The station profile ID can be found in the URL when editing a station profile in Wavelog.
 
 ## Project Structure
 
@@ -67,7 +84,8 @@ UDPLogParser/
 │   ├── UDPServer.js      # UDP server & message routing
 │   ├── ProtocolParser.js # WSJT-X & N1MM protocol parsing
 │   ├── ADIFHandler.js    # ADIF parsing & file I/O
-│   └── MQTTClient.js     # MQTT connection & publishing
+│   ├── MQTTClient.js     # MQTT connection & publishing
+│   └── WavelogClient.js  # Wavelog API integration
 ├── package.json
 └── README.md
 ```
@@ -118,38 +136,61 @@ When MQTT is configured, each QSO is published as JSON to the specified topic wi
 - **Payload**: Complete QSO data in JSON format
 - **Protocol**: Automatically detected from broker URL (`mqtt://` or `mqtts://`)
 
-## Development
+## Wavelog Publishing
 
-### Module Overview
+When Wavelog is configured, each QSO is automatically uploaded to your Wavelog instance via the REST API.
 
-#### `ProtocolParser.js`
-Handles binary protocol parsing for WSJT-X and N1MM Logger+.
+### Requirements
+- Wavelog instance URL (e.g., `https://log.example.com`)
+- API token (generated in Wavelog settings)
+- Station profile ID (found in Wavelog station profile URL)
 
-**Methods:**
-- `parse(buffer)` - Auto-detects and parses incoming UDP packets
-- `parseWSJTX(buffer)` - Parses WSJT-X binary protocol
-- `parseN1MM(buffer)` - Parses N1MM text-based protocol
+### Configuration
 
-#### `ADIFHandler.js`
-Manages ADIF parsing, conversion, and file operations.
+1. **Get your API token:**
+   - Log into your Wavelog instance
+   - Go to **Account → API** or **Settings → API**
+   - Generate a new API token if you don't have one
 
-**Methods:**
-- `parse(adifString)` - Converts ADIF string to JSON
-- `toADIF(qsoData)` - Converts JSON to ADIF format
-- `initializeFile()` - Creates ADIF file with header
-- `append(qsoData)` - Appends QSO to file
+2. **Find your station profile ID:**
+   - Go to **Station Profiles**
+   - Edit the station profile you want to use
+   - The ID is visible in the URL: `https://log.example.com/index.php/station/edit/1` (ID = 1)
 
-#### `MQTTClient.js`
-Handles MQTT connection and publishing.
+3. **Start UDPLogCollector with Wavelog:**
+   ```bash
+   node index.js \
+     --wavelog-url https://log.example.com \
+     --wavelog-token YOUR_API_TOKEN \
+     --wavelog-stationid 1
+   ```
 
-**Methods:**
-- `connect()` - Establishes MQTT connection (protocol auto-detected from URL)
-- `publish(qsoData)` - Publishes QSO to MQTT topic
-- `disconnect()` - Closes MQTT connection
+### Features
+- **Automatic upload**: QSOs are uploaded immediately after being logged
+- **HTTPS support**: Both HTTP and HTTPS Wavelog instances are supported
+- **Timeout protection**: 30-second timeout prevents hanging requests
+- **Error handling**: Failed uploads are logged but don't stop the application
+- **ADIF format**: QSOs are converted to ADIF format before uploading
 
-#### `UDPServer.js`
-Orchestrates all components and handles UDP communication.
+### API Details
+- **Endpoint**: `/index.php/api/qso`
+- **Method**: POST
+- **Format**: JSON with ADIF string
+- **Timeout**: 30 seconds
+- **Protocol**: HTTP or HTTPS (automatically detected from URL)
 
-**Methods:**
-- `start()` - Starts UDP server and initializes handlers
-- `stop()` - Gracefully shuts down all connections
+### Example Configuration
+```bash
+# Upload to Wavelog and also save to local ADIF file
+node index.js \
+  --adif ./logs/qso.adi \
+  --wavelog-url https://wavelog.example.com \
+  --wavelog-token abc123def456 \
+  --wavelog-stationid 1
+```
+
+### Troubleshooting
+- **401 Unauthorized**: Check your API token is correct
+- **404 Not Found**: Verify the Wavelog URL is correct (should not include `/index.php/api/qso`)
+- **Timeout errors**: Check network connection to your Wavelog instance
+- **Invalid station ID**: Ensure the station profile ID exists in your Wavelog instance
