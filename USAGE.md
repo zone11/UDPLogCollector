@@ -135,3 +135,62 @@ When MQTT is configured, each QSO is published as JSON to the specified topic wi
 - **Retain**: false
 - **Payload**: Complete QSO data in JSON format
 - **Protocol**: Automatically detected from broker URL (`mqtt://` or `mqtts://`)
+
+## Wavelog Publishing
+
+When Wavelog is configured, each QSO is automatically uploaded to your Wavelog instance via the REST API.
+
+### Requirements
+- Wavelog instance URL (e.g., `https://log.example.com`)
+- API token (generated in Wavelog settings)
+- Station profile ID (found in Wavelog station profile URL)
+
+### Configuration
+
+1. **Get your API token:**
+   - Log into your Wavelog instance
+   - Go to **Account → API** or **Settings → API**
+   - Generate a new API token if you don't have one
+
+2. **Find your station profile ID:**
+   - Go to **Station Profiles**
+   - Edit the station profile you want to use
+   - The ID is visible in the URL: `https://log.example.com/index.php/station/edit/1` (ID = 1)
+
+3. **Start UDPLogCollector with Wavelog:**
+   ```bash
+   node index.js \
+     --wavelog-url https://log.example.com \
+     --wavelog-token YOUR_API_TOKEN \
+     --wavelog-stationid 1
+   ```
+
+### Features
+- **Automatic upload**: QSOs are uploaded immediately after being logged
+- **HTTPS support**: Both HTTP and HTTPS Wavelog instances are supported
+- **Timeout protection**: 30-second timeout prevents hanging requests
+- **Error handling**: Failed uploads are logged but don't stop the application
+- **ADIF format**: QSOs are converted to ADIF format before uploading
+
+### API Details
+- **Endpoint**: `/index.php/api/qso`
+- **Method**: POST
+- **Format**: JSON with ADIF string
+- **Timeout**: 30 seconds
+- **Protocol**: HTTP or HTTPS (automatically detected from URL)
+
+### Example Configuration
+```bash
+# Upload to Wavelog and also save to local ADIF file
+node index.js \
+  --adif ./logs/qso.adi \
+  --wavelog-url https://wavelog.example.com \
+  --wavelog-token abc123def456 \
+  --wavelog-stationid 1
+```
+
+### Troubleshooting
+- **401 Unauthorized**: Check your API token is correct
+- **404 Not Found**: Verify the Wavelog URL is correct (should not include `/index.php/api/qso`)
+- **Timeout errors**: Check network connection to your Wavelog instance
+- **Invalid station ID**: Ensure the station profile ID exists in your Wavelog instance
