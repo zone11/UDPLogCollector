@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const UDPServer = require('./lib/UDPServer');
+const Logger = require('./lib/Logger');
 const pkg = require('./package.json');
 
 // Display startup banner
@@ -23,6 +24,7 @@ let port = 2237; // Default port
 let adifPath = null;
 let mqttConfig = {};
 let wavelogConfig = {};
+let logLevel = 'NONE'; // Default log level (only success messages)
 
 // Helper function to parse command line arguments
 function parseArgument(args, i, argName) {
@@ -51,6 +53,7 @@ Options:
   --wavelog-url <url>      Wavelog instance URL (e.g., https://log.example.com)
   --wavelog-token <token>  Wavelog API token
   --wavelog-stationid <id> Wavelog station profile ID
+  --log-level <level>      Log level: NONE, ERROR, WARN, INFO, DEBUG, TRACE (default: NONE)
   -h, --help               Show this help message
 
 Examples:
@@ -124,6 +127,19 @@ Examples:
     continue;
   }
 
+  if (arg === '--log-level') {
+    const levelValue = parseArgument(args, i, '--log-level');
+    const upperLevel = levelValue.toUpperCase();
+    const validLevels = ['NONE', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'];
+    if (!validLevels.includes(upperLevel)) {
+      console.error(`Error: Invalid log level "${levelValue}". Valid levels: ${validLevels.join(', ')}`);
+      process.exit(1);
+    }
+    logLevel = upperLevel;
+    i++;
+    continue;
+  }
+
   // Unknown argument
   console.error(`Error: Unknown option "${arg}"`);
   console.log('Use --help for usage information');
@@ -146,6 +162,15 @@ if (wavelogEnabled) {
   }
 }
 
+// Set log level
+Logger.setLevel(logLevel);
+const appLogger = new Logger('Main');
+
+// Only show log level message if logging is enabled
+if (Logger.currentLevel > Logger.LOG_LEVELS.NONE) {
+  appLogger.info(`Log level set to: ${Logger.getLevelName()}`);
+}
+
 // Start server (ADIFHandler is passed to WavelogClient)
 const server = new UDPServer({
   port,
@@ -159,7 +184,8 @@ server.start();
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\nShutting down...');
+  appLogger.info('Shutdown signal received');
   server.stop();
+  appLogger.info('Shutdown complete');
   process.exit(0);
 });
