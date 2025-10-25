@@ -9,18 +9,16 @@ node index.js
 ### With ADIF Logging
 
 ```bash
-node index.js --port 2237 --adif ./logs/qso.adi
+node index.js --adif ./logs/qso.adi
 ```
 
-### With MQTT (Unencrypted)
+### With MQTT
 
 ```bash
+# Unencrypted
 node index.js --mqtt-broker mqtt://broker.hivemq.com:1883 --mqtt-topic ham/qso
-```
 
-### With MQTT (Encrypted + Auth)
-
-```bash
+# Encrypted with authentication
 node index.js \
   --mqtt-broker mqtts://broker.example.com:8883 \
   --mqtt-username myuser \
@@ -37,154 +35,126 @@ node index.js \
   --wavelog-stationid 1
 ```
 
-### Full Configuration
+### Combined Configuration
 
 ```bash
 node index.js \
   --port 2237 \
   --adif ./logs/qso.adi \
-  --mqtt-broker mqtt://localhost:1883 \
-  --mqtt-topic qso/log \
+  --mqtt-broker mqtts://broker.example.com:8883 \
+  --mqtt-username myuser \
+  --mqtt-password mypass \
   --wavelog-url https://log.example.com \
   --wavelog-token YOUR_API_KEY \
   --wavelog-stationid 1
 ```
 
-## Options
+## Command Line Options
 
-| Option | Short | Description | Default |
-|--------|-------|-------------|---------|
-| `--port` | `-p` | UDP port to listen on | 2237 |
-| `--adif` | `-a` | Path to ADIF log file | none |
-| `--mqtt-broker` | - | MQTT broker URL (mqtt://host:port or mqtts://host:port) | none |
-| `--mqtt-topic` | - | MQTT topic | qso/log |
-| `--mqtt-username` | - | MQTT username | none |
-| `--mqtt-password` | - | MQTT password | none |
-| `--wavelog-url` | - | Wavelog instance URL | none |
-| `--wavelog-token` | - | Wavelog API token | none |
-| `--wavelog-stationid` | - | Wavelog station profile ID | none |
-| `--help` | `-h` | Show help message | - |
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--port` | UDP port to listen on | 2237 |
+| `--adif` | Path to ADIF log file | none |
+| `--mqtt-broker` | MQTT broker URL (mqtt:// or mqtts://) | none |
+| `--mqtt-topic` | MQTT topic | qso/log |
+| `--mqtt-username` | MQTT username | none |
+| `--mqtt-password` | MQTT password | none |
+| `--wavelog-url` | Wavelog instance URL | none |
+| `--wavelog-token` | Wavelog API token | none |
+| `--wavelog-stationid` | Wavelog station profile ID | none |
+| `--help` | Show help message | - |
 
-**Note:** The MQTT broker URL must include the protocol (`mqtt://` for unencrypted or `mqtts://` for encrypted connections). If no protocol is specified, `mqtt://` is assumed for backwards compatibility.
+## Application Setup
 
-**Note:** For Wavelog integration, all three parameters (URL, token, and station ID) are required. The station profile ID can be found in the URL when editing a station profile in Wavelog.
+### Single Computer Setup
 
-## Project Structure
+Configure your logging software to send UDP data to `localhost` or `127.0.0.1` on port `2237`.
 
-```
-UDPLogParser/
-├── index.js              # Entry point & CLI parsing
-├── lib/
-│   ├── UDPServer.js      # UDP server & message routing
-│   ├── ProtocolParser.js # WSJT-X & N1MM protocol parsing
-│   ├── ADIFHandler.js    # ADIF parsing & file I/O
-│   ├── MQTTClient.js     # MQTT connection & publishing
-│   └── WavelogClient.js  # Wavelog API integration
-├── package.json
-└── README.md
-```
-
-## Configuration in WSJT-X / N1MM
-
-### WSJT-X
+**WSJT-X:**
 1. Go to **File → Settings → Reporting**
 2. Enable **UDP Server**
-3. Set **UDP Server Port** to `2237`
-4. Set **UDP Server** to `localhost` or `127.0.0.1`
+3. Set **UDP Server** to `127.0.0.1`
+4. Set **UDP Server Port** to `2237`
 
-### N1MM Logger+
+**N1MM Logger+:**
 1. Go to **Config → Configure Ports, Mode Control...**
 2. Enable **Broadcast Data**
 3. Set port to `2237`
 
-## QSO Data Format
+### Multi-Station Network Setup
 
-JSON output includes:
+For multi-operator contests or field day setups, run UDPLogCollector on one computer in your network and configure all logging applications to send UDP data to that computer's IP address.
 
-```json
-{
-  "call": "DL1TEST",
-  "qso_date": "2025-10-18",
-  "time_on": "15:17:06",
-  "time_off": "15:17:06",
-  "band": "20M",
-  "freq": 14.075,
-  "mode": "FT8",
-  "rst_sent": -1,
-  "rst_rcvd": -2,
-  "tx_pwr": 100,
-  "comment": "UDP test submission",
-  "sota_ref": "HB/SG-001",
-  "pota_ref": "HB-0123",
-  "wwff_ref": "HBFF-0001"
-}
-```
+**Example:** UDPLogCollector runs on computer with IP `192.168.1.100`
 
-Optional fields (`sota_ref`, `pota_ref`, `wwff_ref`) are only included if present.
+**WSJT-X on other stations:**
+1. Set **UDP Server** to `192.168.1.100`
+2. Set **UDP Server Port** to `2237`
 
-## MQTT Publishing
+**N1MM Logger+ on other stations:**
+1. Configure **Broadcast Data** to `192.168.1.100:2237`
 
-When MQTT is configured, each QSO is published as JSON to the specified topic with:
-- **QoS**: 1 (at least once delivery)
-- **Retain**: false
-- **Payload**: Complete QSO data in JSON format
-- **Protocol**: Automatically detected from broker URL (`mqtt://` or `mqtts://`)
+**Note:** Ensure firewall rules allow UDP traffic on port 2237 between stations.
 
-## Wavelog Publishing
+## MQTT Integration
 
-When Wavelog is configured, each QSO is automatically uploaded to your Wavelog instance via the REST API.
+When MQTT is configured, each QSO is published as JSON to the specified topic.
 
-### Requirements
-- Wavelog instance URL (e.g., `https://log.example.com`)
-- API token (generated in Wavelog settings)
-- Station profile ID (found in Wavelog station profile URL)
+**Configuration:**
+- QoS 1 (at least once delivery)
+- Message format: JSON with complete QSO data
+- Protocol: Automatically detected from URL (`mqtt://` or `mqtts://`)
 
-### Configuration
+**Example topics:**
+- `ham/qso` - General QSO logging
+- `contest/qso` - Contest QSOs
+- `field-day/qso` - Field day operations
 
-1. **Get your API token:**
-   - Log into your Wavelog instance
-   - Go to **Account → API** or **Settings → API**
-   - Generate a new API token if you don't have one
+## Wavelog Integration
 
-2. **Find your station profile ID:**
+Automatically upload QSOs to your Wavelog instance.
+
+### Setup
+
+1. **Generate API Token:**
+   - Log into Wavelog
+   - Navigate to **Account → API**
+   - Create a new API token (read+write permissions required)
+
+2. **Find Station Profile ID:**
    - Go to **Station Profiles**
-   - Edit the station profile you want to use
-   - The ID is visible in the URL: `https://log.example.com/index.php/station/edit/1` (ID = 1)
+   - Edit your station profile
+   - The ID is in the URL: `.../station/edit/1` (ID = 1)
 
-3. **Start UDPLogCollector with Wavelog:**
+3. **Start with Wavelog:**
    ```bash
    node index.js \
-     --wavelog-url https://log.example.com \
+     --wavelog-url https://your-wavelog.com \
      --wavelog-token YOUR_API_TOKEN \
      --wavelog-stationid 1
    ```
 
-### Features
-- **Automatic upload**: QSOs are uploaded immediately after being logged
-- **HTTPS support**: Both HTTP and HTTPS Wavelog instances are supported
-- **Timeout protection**: 30-second timeout prevents hanging requests
-- **Error handling**: Failed uploads are logged but don't stop the application
-- **ADIF format**: QSOs are converted to ADIF format before uploading
+### Notes
 
-### API Details
-- **Endpoint**: `/index.php/api/qso`
-- **Method**: POST
-- **Format**: JSON with ADIF string
-- **Timeout**: 30 seconds
-- **Protocol**: HTTP or HTTPS (automatically detected from URL)
-
-### Example Configuration
-```bash
-# Upload to Wavelog and also save to local ADIF file
-node index.js \
-  --adif ./logs/qso.adi \
-  --wavelog-url https://wavelog.example.com \
-  --wavelog-token abc123def456 \
-  --wavelog-stationid 1
-```
+- QSOs are uploaded immediately after logging
+- Both HTTP and HTTPS are supported
+- Failed uploads are logged but don't stop the application
+- All three parameters (URL, token, station ID) are required
 
 ### Troubleshooting
-- **401 Unauthorized**: Check your API token is correct
-- **404 Not Found**: Verify the Wavelog URL is correct (should not include `/index.php/api/qso`)
-- **Timeout errors**: Check network connection to your Wavelog instance
-- **Invalid station ID**: Ensure the station profile ID exists in your Wavelog instance
+
+**401 Unauthorized:** API token is invalid or expired  
+**404 Not Found:** Check Wavelog URL (don't include `/index.php/api/qso`)  
+**500 Server Error:** Check Wavelog server logs for database or configuration issues  
+**Connection timeout:** Verify network connectivity to Wavelog instance
+
+## Development
+
+### Module Overview
+
+- `index.js` - Entry point & CLI parsing
+- `lib/UDPServer.js` - UDP server & message routing
+- `lib/ProtocolParser.js` - WSJT-X & N1MM protocol parsing
+- `lib/ADIFHandler.js` - ADIF parsing & file I/O
+- `lib/MQTTClient.js` - MQTT connection & publishing
+- `lib/WavelogClient.js` - Wavelog API integration
