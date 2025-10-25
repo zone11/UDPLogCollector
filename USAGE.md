@@ -88,15 +88,6 @@ node index.js
 
 # Show errors only
 node index.js --log-level ERROR
-
-# Show info messages (useful during development)
-node index.js --log-level INFO
-
-# Debug mode with detailed information
-node index.js --log-level DEBUG
-
-# Trace mode with full packet dumps
-node index.js --log-level TRACE
 ```
 
 ## Application Setup
@@ -193,3 +184,5 @@ Automatically upload QSOs to your Wavelog instance.
 - `lib/ADIFHandler.js` - ADIF parsing & file I/O
 - `lib/MQTTClient.js` - MQTT connection & publishing
 - `lib/WavelogClient.js` - Wavelog API integration
+- `lib/Logger.js` - Console logging with different levels
+
