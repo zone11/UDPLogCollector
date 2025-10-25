@@ -3,6 +3,8 @@ Simple UDP receiver and bridge for QSO data from logging applications like WSJT-
 
 UDPLogCollector acts as a centralized hub for amateur radio logging software, receiving QSO data via UDP and distributing it to multiple destinations. The primary use case is multi-operator contest weekends or field day operations where different logging and SDR tools need centralized logging in the background.
 
+![alt text](images/terminal_logging.png)
+
 ## Features (planned)
 
 - Save QSOs to local ADIF file (simple log collector) ✅
