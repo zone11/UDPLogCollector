@@ -1,10 +1,10 @@
 {
   "name": "udplogcollector",
-  "version": "0.0.2",
-  "description": "UDP Log collector for QSO in WSJT-X and N1MM Logger+ format with MQTT and ADIF support",
+  "version": "0.1.0",
+  "description": "Universal UDP receiver and bridge for amateur radio logging applications. Receives QSO data from WSJT-X, N1MM Logger+ and compatible software, and distributes to ADIF files, MQTT brokers, and Wavelog instances.",
   "main": "index.js",
   "bin": {
-    "udplogparser": "./index.js"
+    "udplogcollector": "./index.js"
   },
   "scripts": {
     "start": "node index.js",
@@ -12,16 +12,28 @@
   },
   "keywords": [
     "ham-radio",
+    "amateur-radio",
     "wsjt-x",
     "n1mm",
     "adif",
     "mqtt",
-    "amateur-radio",
+    "wavelog",
     "qso",
-    "logging"
+    "logging",
+    "contest",
+    "field-day",
+    "udp-bridge"
   ],
   "author": "Christian Egger, HB9HJQ",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zone11/UDPLogCollector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zone11/UDPLogCollector/issues"
+  },
+  "homepage": "https://github.com/zone11/UDPLogCollector#readme",
   "dependencies": {
     "mqtt": "^5.3.0"
   },
