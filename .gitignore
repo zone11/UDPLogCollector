@@ -65,5 +65,8 @@ config.json
 config.local.json
 credentials.json
 
+# Examples
+examples
+
 # Claude Code
 .claude/

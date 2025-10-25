@@ -62,7 +62,42 @@ node index.js \
 | `--wavelog-url` | Wavelog instance URL | none |
 | `--wavelog-token` | Wavelog API token | none |
 | `--wavelog-stationid` | Wavelog station profile ID | none |
+| `--log-level` | Log level: NONE, ERROR, WARN, INFO, DEBUG, TRACE | NONE |
 | `--help` | Show help message | - |
+
+## Logging
+
+By default, the application runs in quiet mode (`NONE` log level), showing only the startup banner and important success messages (like "Server listening", "Connected to MQTT", etc.).
+
+### Log Levels
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| `NONE` | Only success messages (default) | Production use, quiet operation |
+| `ERROR` | Only errors | Production monitoring |
+| `WARN` | Errors and warnings | Production with issue tracking |
+| `INFO` | General information | Development, testing |
+| `DEBUG` | Detailed debugging information | Troubleshooting |
+| `TRACE` | Very verbose output (includes raw packets) | Deep debugging |
+
+### Examples
+
+```bash
+# Quiet mode (default) - only success messages
+node index.js
+
+# Show errors only
+node index.js --log-level ERROR
+
+# Show info messages (useful during development)
+node index.js --log-level INFO
+
+# Debug mode with detailed information
+node index.js --log-level DEBUG
+
+# Trace mode with full packet dumps
+node index.js --log-level TRACE
+```
 
 ## Application Setup
 
