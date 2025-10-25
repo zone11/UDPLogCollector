@@ -1,4 +1,4 @@
-# UDPLogCollector (WORK IN PROGRESS)
+# UDPLogCollector
 Simple UDP receiver and bridge for QSO data from logging applications like WSJT-X and N1MM Logger+.
 
 UDPLogCollector acts as a centralized hub for amateur radio logging software, receiving QSO data via UDP and distributing it to multiple destinations. The primary use case is multi-operator contest weekends or field day operations where different logging and SDR tools need centralized logging in the background.
@@ -9,6 +9,7 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 - Send QSOs to MQTT broker (secured) ✅
 - Send QSOs to Wavelog (https://www.wavelog.org) ✅
 - Send QSOs to Node-Red based station automation with REST (planned)
+- Semd QSOs to Database (SQlite, MySQL/MariaDB, PostgreSQL)
 - Send QSOs to signage solutions and contest displays (planned)
 
 ## Requirements
@@ -19,7 +20,7 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 ### Optional Requirements for Publishing
 
 - **MQTT Broker** - For MQTT publishing (e.g., Mosquitto, HiveMQ, EMQX)
-- **Wavelog Instance** - For Wavelog integration (self-hosted or cloud)
+- **Wavelog Instance** - For Wavelog integration (self-hosted or club/cloud)
   - Wavelog API token
   - Station profile ID
 
