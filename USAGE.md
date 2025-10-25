@@ -62,7 +62,33 @@ node index.js \
 | `--wavelog-url` | Wavelog instance URL | none |
 | `--wavelog-token` | Wavelog API token | none |
 | `--wavelog-stationid` | Wavelog station profile ID | none |
+| `--log-level` | Log level: NONE, ERROR, WARN, INFO, DEBUG, TRACE | NONE |
 | `--help` | Show help message | - |
+
+## Logging
+
+By default, the application runs in quiet mode (`NONE` log level), showing only the startup banner and important success messages (like "Server listening", "Connected to MQTT", etc.).
+
+### Log Levels
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| `NONE` | Only success messages (default) | Production use, quiet operation |
+| `ERROR` | Only errors | Production monitoring |
+| `WARN` | Errors and warnings | Production with issue tracking |
+| `INFO` | General information | Development, testing |
+| `DEBUG` | Detailed debugging information | Troubleshooting |
+| `TRACE` | Very verbose output (includes raw packets) | Deep debugging |
+
+### Examples
+
+```bash
+# Quiet mode (default) - only success messages
+node index.js
+
+# Show errors only
+node index.js --log-level ERROR
+```
 
 ## Application Setup
 
@@ -158,3 +184,5 @@ Automatically upload QSOs to your Wavelog instance.
 - `lib/ADIFHandler.js` - ADIF parsing & file I/O
 - `lib/MQTTClient.js` - MQTT connection & publishing
 - `lib/WavelogClient.js` - Wavelog API integration
+- `lib/Logger.js` - Console logging with different levels
+
