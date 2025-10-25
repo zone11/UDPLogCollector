@@ -1,6 +1,21 @@
 #!/usr/bin/env node
 
 const UDPServer = require('./lib/UDPServer');
+const pkg = require('./package.json');
+
+// Display startup banner
+console.log('');
+console.log('================================================================');
+console.log('  UDPLogCollector v' + pkg.version);
+console.log('================================================================');
+console.log('');
+console.log('  Universal UDP receiver and bridge for amateur radio');
+console.log('  logging applications (WSJT-X, N1MM Logger+)');
+console.log('');
+console.log('  Author:  ' + pkg.author);
+console.log('  License: ' + pkg.license);
+console.log('================================================================');
+console.log('');
 
 // Parse command line arguments
 const args = process.argv.slice(2);

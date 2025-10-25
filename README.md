@@ -11,6 +11,18 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 - Send QSOs to Node-Red based station automation with REST (planned)
 - Send QSOs to signage solutions and contest displays (planned)
 
+## Requirements
+
+- **Node.js** >= 14.0.0
+- **npm** (included with Node.js)
+
+### Optional Requirements for Publishing
+
+- **MQTT Broker** - For MQTT publishing (e.g., Mosquitto, HiveMQ, EMQX)
+- **Wavelog Instance** - For Wavelog integration (self-hosted or cloud)
+  - Wavelog API token
+  - Station profile ID
+
 ## Supported Applications
 
 Any logging software or SDR application that supports the UDP protocols from:
