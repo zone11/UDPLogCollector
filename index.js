@@ -1,8 +1,30 @@
 #!/usr/bin/env node
 
+const pkg = require('./package.json');
+
+function verifyDependencies() {
+  const dependencies = Object.keys(pkg.dependencies || {});
+  const missing = [];
+
+  for (const dep of dependencies) {
+    try {
+      require.resolve(dep);
+    } catch (error) {
+      missing.push(dep);
+    }
+  }
+
+  if (missing.length > 0) {
+    console.error('Missing required npm packages: ' + missing.join(', '));
+    console.error('Run `npm install` in this project directory, then start the app again.');
+    process.exit(1);
+  }
+}
+
+verifyDependencies();
+
 const UDPServer = require('./lib/UDPServer');
 const Logger = require('./lib/Logger');
-const pkg = require('./package.json');
 
 // Display startup banner
 console.log('');
