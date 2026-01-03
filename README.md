@@ -13,17 +13,27 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 - Send QSOs to REST API (Node-Red)
 - Send QSOs to Database (SQlite, MySQL/MariaDB)
 
-## Requirements
+## Installation
 
+### Requirements
 - **Node.js** >= 14.0.0
 - **npm** (included with Node.js)
 
 ### Optional Requirements for Publishing
-
 - **MQTT Broker** - For MQTT publishing (e.g., Mosquitto, HiveMQ, EMQX)
 - **Wavelog Instance** - For Wavelog integration (self-hosted or club/cloud)
   - Wavelog API token
   - Station profile ID
+
+### Installation Steps
+1. **Clone or download the repository** \
+Then open a terminal in the extracted project directory (where package.json is located).
+2. **Install dependencies** \
+   This step is mandatory before running the application:\
+   ```npm install```
+3. **Run UDPLogCollector** \
+   Example with Wavelog connectivity: \
+   ```node index.js --wavelog-url https://log.example.com --wavelog-token YOUR_API_TOKEN --wavelog-stationid 1```
 
 ## Supported Applications
 
