@@ -68,5 +68,6 @@ credentials.json
 # Examples
 examples
 
-# Claude Code
+# Workspace
+.code-workspace
 .claude/
