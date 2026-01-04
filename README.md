@@ -9,9 +9,9 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 
 - Save QSOs to local ADIF file (simple log collector) ✅
 - Send QSOs to MQTT broker (secured) ✅
-- Send QSOs to Wavelog (https://www.wavelog.org) ✅
-- Send QSOs to REST API (Node-RED)
+- Send QSOs to [Wavelog](https://www.wavelog.org) ✅
 - Send QSOs to a database (SQLite, MySQL/MariaDB)
+- Send QSOs to REST API (Node-RED)
 
 ## Installation
 
@@ -19,10 +19,10 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 - **Node.js** >= 14.0.0
 - **npm** (included with Node.js)
 
-### Optional Requirements for Publishing
+### Optional requirements for publishing
 - **MQTT Broker** - For MQTT publishing (e.g., Mosquitto, HiveMQ, EMQX)
-- **Wavelog Instance** - For Wavelog integration (self-hosted or club/cloud)
-  - Wavelog API token
+- **Wavelog** - For Wavelog integration (self-hosted or club/cloud)
+  - API token
   - Station profile ID
 
 ### Installation Steps
@@ -41,15 +41,15 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
     node index.js
     ```
 
-For detailed usage and configuration options, see `USAGE.md`.
+For detailed usage and configuration options, see [USAGE.md](USAGE.md).
 
-## Supported Applications
+## Supported applications
 
 Any logging software or SDR application that supports the UDP protocols from:
 - **WSJT-X** (binary protocol) - e.g., WSJT-X, JTDX, JS8Call
 - **N1MM Logger+** (text-based ADIF protocol) - e.g., N1MM Logger+, compatible contest loggers
 
-### Other Tested Applications
+### Other tested applications
 - SmartSDR for Mac
 - RUMLogNG
 - MacLoggerDX
