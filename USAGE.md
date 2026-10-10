@@ -146,6 +146,7 @@ Automatically upload QSOs to your Wavelog instance.
    - Log into Wavelog
    - Navigate to **Account → API**
    - Create a new API token (read+write permissions required)
+   - API v2 tokens (starting with `wl2_`) are fully supported and need the `qso:write` scope
 
 2. **Find Station Profile ID:**
    - Go to **Station Profiles**
@@ -166,11 +167,13 @@ Automatically upload QSOs to your Wavelog instance.
 - Both HTTP and HTTPS are supported
 - Failed uploads are logged but don't stop the application
 - All three parameters (URL, token, station ID) are required
+- The API version is detected from the token
 
 ### Troubleshooting
 
 **401 Unauthorized:** API token is invalid or expired  
-**404 Not Found:** Check Wavelog URL (don't include `/index.php/api/qso`)  
+**403 Forbidden:** API v2 token lacks the `qso:write` scope  
+**404 Not Found:** Check Wavelog URL (don't include `/index.php/api/qso` or `/index.php/api/v2/qso`)  
 **500 Server Error:** Check Wavelog server logs for database or configuration issues  
 **Connection timeout:** Verify network connectivity to Wavelog instance
 
