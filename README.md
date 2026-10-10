@@ -22,7 +22,7 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 ### Optional Requirements for Publishing
 - **MQTT Broker** - For MQTT publishing (e.g., Mosquitto, HiveMQ, EMQX)
 - **Wavelog Instance** - For Wavelog integration (self-hosted or club/cloud)
-  - Wavelog API token
+  - Wavelog API token (v1 keys and v2 tokens are supported)
   - Station profile ID
 
 ### Installation Steps
