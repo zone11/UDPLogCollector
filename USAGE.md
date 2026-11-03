@@ -35,6 +35,12 @@ node index.js \
   --wavelog-stationid 1
 ```
 
+### With Web View and Allowed Sources
+
+```bash
+node index.js --web-port 8080 --allow-source 192.168.1.0/24
+```
+
 ### Combined Configuration
 
 ```bash
@@ -69,23 +75,23 @@ node index.js \
 
 ## Logging
 
-By default, the application runs in quiet mode (`NONE` log level), showing only the startup banner and important success messages (like "Server listening", "Connected to MQTT", etc.).
+By default, the application runs in quiet mode (`NONE` log level), showing only the startup banner, important success messages (like "Server listening", "Connected to MQTT", etc.) and rejected QSOs.
 
 ### Log Levels
 
 | Level | Description | Use Case |
 |-------|-------------|----------|
-| `NONE` | Only success messages (default) | Production use, quiet operation |
+| `NONE` | Only success messages and rejected QSOs (default) | Production use, quiet operation |
 | `ERROR` | Only errors | Production monitoring |
 | `WARN` | Errors and warnings | Production with issue tracking |
 | `INFO` | General information | Development, testing |
-| `DEBUG` | Detailed debugging information | Troubleshooting |
+| `DEBUG` | Detailed debugging information, including packets from senders that are not allowed | Troubleshooting |
 | `TRACE` | Very verbose output (includes raw packets) | Deep debugging |
 
 ### Examples
 
 ```bash
-# Quiet mode (default) - only success messages
+# Quiet mode (default) - only success messages and rejected QSOs
 node index.js
 
 # Show errors only
@@ -227,11 +233,18 @@ Automatically upload QSOs to your Wavelog instance.
 ### Module Overview
 
 - `index.js` - Entry point & CLI parsing
-- `lib/UDPServer.js` - UDP server & message routing
+- `lib/UDPServer.js` - UDP server, sender allow list & message routing
 - `lib/ProtocolParser.js` - WSJT-X & N1MM protocol parsing
-- `lib/ADIFHandler.js` - ADIF parsing & file I/O
+- `lib/ADIFHandler.js` - ADIF parsing, QSO validation & file I/O
 - `lib/MQTTClient.js` - MQTT connection & publishing
 - `lib/WavelogClient.js` - Wavelog API integration
 - `lib/Logger.js` - Console logging with different levels
 - `lib/LogWebServer.js` - Web view of the log output
+- `test/` - Automated tests
+
+### Tests
+
+```bash
+npm test
+```
 

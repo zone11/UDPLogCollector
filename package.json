@@ -1,7 +1,7 @@
 {
   "name": "udplogcollector",
   "version": "0.4.0",
-  "description": "Universal UDP receiver and bridge for amateur radio logging applications. Receives QSO data from WSJT-X, N1MM Logger+ and compatible software, and distributes to ADIF files, MQTT brokers, and Wavelog instances.",
+  "description": "Universal UDP receiver and bridge for amateur radio logging applications. Receives QSO data from WSJT-X, N1MM Logger+ and compatible software, and distributes to ADIF files, MQTT brokers, and Wavelog instances, with a live log view in the browser.",
   "main": "index.js",
   "bin": {
     "udplogcollector": "./index.js"
