@@ -25,6 +25,10 @@ verifyDependencies();
 
 const UDPServer = require('./lib/UDPServer');
 const Logger = require('./lib/Logger');
+const LogWebServer = require('./lib/LogWebServer');
+
+// Created before anything is printed, so the web view includes the banner
+const logWebServer = process.argv.includes('--web-port') ? new LogWebServer() : null;
 
 // Display startup banner
 console.log('');
@@ -47,6 +51,8 @@ let adifPath = null;
 let mqttConfig = {};
 let wavelogConfig = {};
 let logLevel = 'NONE'; // Default log level (only success messages)
+let webPort = null;
+let allowedSources = null;
 
 // Helper function to parse command line arguments
 function parseArgument(args, i, argName) {
@@ -76,6 +82,9 @@ Options:
   --wavelog-token <token>  Wavelog API token
   --wavelog-stationid <id> Wavelog station profile ID
   --log-level <level>      Log level: NONE, ERROR, WARN, INFO, DEBUG, TRACE (default: NONE)
+  --web-port <number>      Show the log output on a web page at this port (optional)
+  --allow-source <list>    Comma-separated IPv4 addresses or CIDR ranges to accept packets from
+                           (default: loopback and private LAN ranges)
   -h, --help               Show this help message
 
 Examples:
@@ -85,6 +94,9 @@ Examples:
   node index.js --mqtt-broker mqtts://broker.example.com:8883 --mqtt-username user --mqtt-password pass
   node index.js --wavelog-url https://log.example.com --wavelog-token YOUR_API_KEY --wavelog-stationid 1
   node index.js --port 2237 --adif ./logs/qso.adi --mqtt-broker mqtt://localhost:1883 --mqtt-topic qso/log
+  node index.js --web-port 8080
+  node index.js --allow-source 127.0.0.1
+  node index.js --allow-source 192.168.1.0/24,100.64.0.0/10
 `);
     process.exit(0);
   }
@@ -162,6 +174,30 @@ Examples:
     continue;
   }
 
+  if (arg === '--web-port') {
+    const portValue = parseArgument(args, i, '--web-port');
+    const parsedPort = parseInt(portValue, 10);
+    if (isNaN(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+      console.error(`Error: Invalid port number "${portValue}"`);
+      process.exit(1);
+    }
+    webPort = parsedPort;
+    i++;
+    continue;
+  }
+
+  if (arg === '--allow-source') {
+    allowedSources = parseArgument(args, i, '--allow-source').split(',').map((entry) => entry.trim());
+    try {
+      UDPServer.parseAllowList(allowedSources);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      process.exit(1);
+    }
+    i++;
+    continue;
+  }
+
   // Unknown argument
   console.error(`Error: Unknown option "${arg}"`);
   console.log('Use --help for usage information');
@@ -196,13 +232,18 @@ if (Logger.currentLevel > Logger.LOG_LEVELS.NONE) {
 // Start server (ADIFHandler is passed to WavelogClient)
 const server = new UDPServer({
   port,
-  host: 'localhost',
+  host: '0.0.0.0', // All interfaces: stations on other computers send here
+  allowedSources,
   adifPath,
   mqttConfig: mqttEnabled ? mqttConfig : null,
   wavelogConfig: wavelogEnabled ? wavelogConfig : null
 });
 
 server.start();
+
+if (logWebServer) {
+  logWebServer.start(webPort);
+}
 
 // Graceful shutdown
 process.on('SIGINT', () => {

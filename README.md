@@ -10,13 +10,14 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 - Save QSOs to local ADIF file (simple log collector) ✅
 - Send QSOs to MQTT broker (secured) ✅
 - Send QSOs to [Wavelog](https://www.wavelog.org) ✅
+- View the log output in a browser, e.g. when running as a service ✅
 - Send QSOs to a database (SQLite, MySQL/MariaDB)
 - Send QSOs to REST API (Node-RED)
 
 ## Installation
 
 ### Requirements
-- **Node.js** >= 14.0.0
+- **Node.js** >= 15.0.0
 - **npm** (included with Node.js)
 
 ### Optional requirements for publishing
