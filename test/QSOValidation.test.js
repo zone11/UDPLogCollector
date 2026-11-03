@@ -87,11 +87,14 @@ const written = fs.readFileSync(adifPath, 'utf8');
 assert.ok(written.includes('N1LAN') && written.includes('N2LOCAL'));
 assert.ok(!written.includes('N3PUBLIC') && !written.includes('script') && !written.includes('N4ESC'));
 
+// N1MM's command wrapper stays out of the output, leaving one record per QSO
+assert.ok(!/COMMAND|PARAMETERS/i.test(written));
+assert.strictEqual((written.match(/<EOR>/gi) || []).length, 2);
+
 // Rejections are visible at the default log level, drops from outside are not
 assert.strictEqual(warnings.length, 2);
 assert.ok(warnings[0].includes('Rejected QSO from 10.0.0.5: invalid CALL') && warnings[0].includes('<script>'));
-// N1MM wraps the ADIF in a PARAMETERS field, so that is the first field found with the escape code
-assert.ok(warnings[1].includes('control characters in PARAMETERS') && warnings[1].includes('\\x1b'));
+assert.ok(warnings[1].includes('control characters in BAND') && warnings[1].includes('\\x1b'));
 assert.ok(warnings.every((message) => !message.slice(10).includes('\x1b[2J')));
 
 server.server.on('listening', () => {
