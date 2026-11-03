@@ -5,18 +5,20 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
 
 ![alt text](images/terminal_logging.png)
 
-## Features (planned)
+## Features
 
 - Save QSOs to local ADIF file (simple log collector) ✅
 - Send QSOs to MQTT broker (secured) ✅
 - Send QSOs to [Wavelog](https://www.wavelog.org) ✅
-- Send QSOs to a database (SQLite, MySQL/MariaDB)
-- Send QSOs to REST API (Node-RED)
+- View the log output live in a browser, e.g. when running as a service ✅
+- Filter packets by sender and validate QSOs before they are saved or forwarded ✅
+- Send QSOs to a database (SQLite, MySQL/MariaDB) (planned)
+- Send QSOs to REST API (Node-RED) (planned)
 
 ## Installation
 
 ### Requirements
-- **Node.js** >= 14.0.0
+- **Node.js** >= 15.0.0
 - **npm** (included with Node.js)
 
 ### Optional requirements for publishing
@@ -42,6 +44,10 @@ UDPLogCollector acts as a centralized hub for amateur radio logging software, re
     ```
 
 For detailed usage and configuration options, see [USAGE.md](USAGE.md).
+
+## Security
+
+UDP has no authentication, so a well-formed fake QSO from an allowed address cannot be detected. The web log view has no login either. Only run UDPLogCollector on a trusted network and restrict its ports with a firewall. See [Packet Filtering](USAGE.md#packet-filtering) for what is checked.
 
 ## Supported applications
 
