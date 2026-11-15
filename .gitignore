@@ -71,4 +71,5 @@ examples
 # Workspace
 .code-workspace
 .claude/
+CLAUDE.md
 workfiles
